@@ -67,7 +67,7 @@
 
     <script>
         var map, marker, marker2, geo = navigator.geolocation;
-        var browserSupportFlag = false;
+        var browserSupportFlag = false, centerOnLocation = true;
         var newyork, rounds, intervalID;;
         var currentRound = 0;
 
@@ -80,7 +80,7 @@
                 title: 'Place to go to'
             });
             google.maps.event.addListener(marker, 'click', function() {
-
+                console.log("clicked marker");
             });
         }
 
@@ -118,7 +118,7 @@
         }
 
         function setCurrentLocation(location) {
-            map.setCenter(location);
+            if(centerOnLocation) map.setCenter(location);
             putMarker2(location);
         }
 
@@ -174,7 +174,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Logo</a>
+                <a class="navbar-brand" href="#"><img src="logo.png" height="150%" width="07%"/></a>
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
                 <ul class="nav navbar-nav">
