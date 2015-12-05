@@ -98,16 +98,19 @@
         var newyork;
 
         function putMarker(location) {
-            clearMarkers();
+            if(marker != undefined) marker.setMap(null);
             // Add a marker to the current longitude and latitude
             marker = new google.maps.Marker({
-                position: initialLocation,
+                position: location,
                 map: map,
                 title: 'Hello World!'
             });
+            google.maps.event.addListener(marker, 'click', function() {
+                window.open("https://www.google.co.uk");
+            });
         }
 
-        /*function getDistance(pos1, pos2) {
+        function getDistance(pos1, pos2) {
             var R = 6371000; // metres
             var φ1 = pos1.lat().toRadians();
             var φ2 = pos2.lat().toRadians();
@@ -119,7 +122,7 @@
                 Math.sin(Δλ/2) * Math.sin(Δλ/2);
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
-        }*/
+        }
 
         function update() {
             geo.getCurrentPosition(function(pos) {
@@ -145,10 +148,10 @@
             console.log("current");
             geo.getCurrentPosition(function(position){
                 console.log("location");
-                location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 map.setCenter(location);
                 putMarker(location);
-                //console.log(getDistance(location, newyork));
+                console.log(getDistance(location, newyork));
             }, function() {
                 console.log("oh noes")
             });
