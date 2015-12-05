@@ -21,6 +21,7 @@
 
         #map {
             height: 70%;
+            width: 70%;
         }
         /* Remove the navbar's default margin-bottom and rounded borders */
 
@@ -63,35 +64,6 @@
 
 <body>
 
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Logo</a>
-            </div>
-            <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Projects</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#">
-                            <span class="glyphicon glyphicon-log-in"></span> Login</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div id="map"></div>
-
     <script>
         var map, marker, geo = navigator.geolocation;
         var browserSupportFlag = false;
@@ -106,19 +78,21 @@
                 title: 'Place to go to'
             });
             google.maps.event.addListener(marker, 'click', function() {
-                window.open("https://www.google.co.uk");
+
             });
         }
 
         function getDistance(pos1, pos2) {
-            var lat1 = pos1.lat(), lat2 = pos2.lat(), lon1 = pos1.lng(), lon2 = pos2.lng();
+            var lat1 = pos1.lat(),
+                lat2 = pos2.lat(),
+                lon1 = pos1.lng(),
+                lon2 = pos2.lng();
             var R = 6371; // Radius of the earth in km
             var dLat = (lat2 - lat1) * Math.PI / 180; // deg2rad below
             var dLon = (lon2 - lon1) * Math.PI / 180;
             var a = 0.5 - Math.cos(dLat) / 2 +
                 Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                 (1 - Math.cos(dLon)) / 2;
-
             return R * 2 * Math.asin(Math.sqrt(a));
         }
 
@@ -150,6 +124,48 @@
             });
         }
     </script>
+
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Logo</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Projects</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#">
+                            <span class="glyphicon glyphicon-log-in"></span> Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="map"></div>
+
+    <div id="container1" class="container-fluid text-center">
+        <div id="container2" class="row content">
+            <div class="col-sm-2 sidenav">
+                <div class="well">
+                    <p>ADS</p>
+                </div>
+                <div class="well">
+                    <p>ADS</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCX3tSxI5b_gaP5CtQUCkOX0okr3Eh-iFk&callback=initMap" async defer></script>
 
 </body>
