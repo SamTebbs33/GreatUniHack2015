@@ -7,10 +7,17 @@
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-w-afxayynkmjAAQXUEJfFof29oC9XJQ&callback=initMap"
-        async defer></script>
-  <script src="script.js"/>
+
   <style>
+  /* Google things */
+  html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 20%;
+      }
     /* Remove the navbar's default margin-bottom and rounded borders */
     .navbar {
       margin-bottom: 0;
@@ -70,31 +77,53 @@
   </div>
 </nav>
 
-<div class="container-fluid text-center">
+<div id="container" class="container-fluid text-center">
+    <div id="map"/>
+
   <div class="row content">
-    <div class="col-sm-2 sidenav">
+    <!-- <div class="col-sm-2 sidenav">
       <p><a href="#">Link</a></p>
       <p><a href="#">Link</a></p>
       <p><a href="#">Link</a></p>
-    </div>
+    </div> -->
     <div class="col-sm-8 text-left">
       <h1>Welcome</h1>
-      <div id="map"></div>
     </div>
-    <div class="col-sm-2 sidenav">
+    <!-- <div class="col-sm-2 sidenav">
       <div class="well">
         <p>ADS</p>
       </div>
       <div class="well">
         <p>ADS</p>
-      </div>
     </div>
+    </div> -->
   </div>
 </div>
 
 <footer class="container-fluid text-center">
   <p>Footer Text</p>
 </footer>
+
+<script>
+var map;
+
+function initMap() {
+    var children = document.getElementById("container").getElementsByTagName("*");
+    console.log(children);
+    for(var i = 0; i < children.length; i++)
+        if(children[i].id == "map") {
+            map = new google.maps.Map(children[i], {
+                center: {lat: -34.397, lng: 150.644},
+                zoom: 8
+            });
+            console.log("yay")
+            return;
+  }
+  console.log("noooo")
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCX3tSxI5b_gaP5CtQUCkOX0okr3Eh-iFk&callback=initMap"
+      async defer></script>
 
 </body>
 </html>
