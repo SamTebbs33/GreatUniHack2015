@@ -112,6 +112,7 @@
             else {
                 clearInterval(intervalID);
                 marker.setMap(null);
+                writeContent("");
                 alert("You've finished!");
             }
         }
@@ -121,15 +122,24 @@
             putMarker2(location);
         }
 
+        function writeQuestion() {
+            var answerStr = "<ol>";
+            var choices = rounds[currentRound].choices;
+            for(var i = 0; i < choices.length; i++) {
+                answerStr += "<li>" + choices[i] + "</li>";
+            }
+            answerStr += "</ol>";
+            writeContent("<p>" + rounds[currentRound].question + "</p>" + answerStr);
+        }
+
         function update() {
             geo.getCurrentPosition(function(position) {
                 var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 var d = getDistance(location, rounds[currentRound].loc);
                 setCurrentLocation(location);
-                console.log(d);
                 if (d <= 0.001) {
                     console.log("you are close!");
-                    nextRound();
+                    writeQuestion();
                 }
             });
         }
@@ -139,12 +149,14 @@
 
             rounds = [{
                 loc: new google.maps.LatLng(53.462052799999995, -2.2285842000000002),
-                question: "Question",
-                answer: "answer"
+                question: "Who is the best person in the world?",
+                answer: "Tom Hanks",
+                choices: ["Queen Elizabeth (lol)", "Miley Cyrus", "Britney Spears", "Tom Hanks"]
             }, {
                 loc: newyork,
-                question: "Question2",
-                answer: "answer2"
+                question: "akndlkawndlkawnd",
+                answer: "Britney Spears",
+                choices: ["Queen Elizabeth (lol)", "Miley Cyrus", "Britney Spears", "Tom Hanks"]
             }];
 
             geo.getCurrentPosition(function(position) {
@@ -199,10 +211,12 @@
           <div id="container2" class="row content">
               <div class="col-sm-2 col-xs-2">
                   <div class="well">
-                      <p>ADS</p>
-                  </div>
-                  <div class="well">
-                      <p>ADS</p>
+                      <script>
+                            function writeContent(content) {
+                                var elm = document.getElementsByClassName("well")[0];
+                                elm.innerHTML = content;
+                            }
+                        </script>
                   </div>
               </div>
           </div>
