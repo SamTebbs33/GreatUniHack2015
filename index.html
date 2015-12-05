@@ -107,7 +107,7 @@
             });
         }
 
-        function getDistance(pos1, pos2) {
+        /*function getDistance(pos1, pos2) {
             var R = 6371000; // metres
             var φ1 = pos1.lat().toRadians();
             var φ2 = pos2.lat().toRadians();
@@ -119,18 +119,18 @@
                 Math.sin(Δλ/2) * Math.sin(Δλ/2);
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
-        }
+        }*/
 
         function update() {
-            var location;
             geo.getCurrentPosition(function(pos) {
-                location = pos;
+                var location = pos;
                 map.setCenter(pos);
             });
 
         }
 
         function initMap() {
+            console.log("init");
             map = new google.maps.Map(document.getElementById("map"), {
                 center: {
                     lat: -34.397,
@@ -139,28 +139,19 @@
                 zoom: 8
             });
 
+            console.log("newyork");
             newyork = new google.maps.LatLng(40.69847032728747, -73.9514422416687);
 
-            navigator.geolocation.getCurrentPosition(function(position) {
+            console.log("current");
+            geo.getCurrentPosition(function(position){
+                console.log("location");
                 location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 map.setCenter(location);
                 putMarker(location);
-                console.log("yo ma8");
-                console.log(getDistance(location, newyork));
+                //console.log(getDistance(location, newyork));
             }, function() {
-                handleNoGeolocation(browserSupportFlag);
+                console.log("oh noes")
             });
-        }
-
-        function handleNoGeolocation(errorFlag) {
-            if (errorFlag == true) {
-                alert("Geolocation service failed.");
-                initialLocation = newyork;
-            } else {
-                alert("Your browser doesn't support geolocation. We've placed you in Siberia.");
-                initialLocation = siberia;
-            }
-            map.setCenter(initialLocation);
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCX3tSxI5b_gaP5CtQUCkOX0okr3Eh-iFk&callback=initMap" async defer></script>
