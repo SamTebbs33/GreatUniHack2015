@@ -98,12 +98,12 @@
         var newyork;
 
         function putMarker(location) {
-            if(marker != undefined) marker.setMap(null);
+            if (marker != undefined) marker.setMap(null);
             // Add a marker to the current longitude and latitude
             marker = new google.maps.Marker({
                 position: location,
                 map: map,
-                title: 'Hello World!'
+                title: 'Place to go to'
             });
             google.maps.event.addListener(marker, 'click', function() {
                 window.open("https://www.google.co.uk");
@@ -111,17 +111,15 @@
         }
 
         function getDistance(pos1, pos2) {
-            var R = 6371000; // metres
-            var φ1 = pos1.lat().toRadians();
-            var φ2 = pos2.lat().toRadians();
-            var Δφ = (pos2.lat()-pos1.lat()).toRadians();
-            var Δλ = (pos2.lon()-pos1.lon()).toRadians();
+            var lat1 = pos1.lat(), lat2 = pos2.lat(), lon1 = pos1.lng(), lon2 = pos2.lng();
+            var R = 6371; // Radius of the earth in km
+            var dLat = (lat2 - lat1) * Math.PI / 180; // deg2rad below
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = 0.5 - Math.cos(dLat) / 2 +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                (1 - Math.cos(dLon)) / 2;
 
-            var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+            return R * 2 * Math.asin(Math.sqrt(a));
         }
 
         function update() {
@@ -133,7 +131,6 @@
         }
 
         function initMap() {
-            console.log("init");
             map = new google.maps.Map(document.getElementById("map"), {
                 center: {
                     lat: -34.397,
@@ -142,16 +139,12 @@
                 zoom: 8
             });
 
-            console.log("newyork");
             newyork = new google.maps.LatLng(40.69847032728747, -73.9514422416687);
 
-            console.log("current");
-            geo.getCurrentPosition(function(position){
-                console.log("location");
+            geo.getCurrentPosition(function(position) {
                 var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 map.setCenter(location);
                 putMarker(location);
-                console.log(getDistance(location, newyork));
             }, function() {
                 console.log("oh noes")
             });
