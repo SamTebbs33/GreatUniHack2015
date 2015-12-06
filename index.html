@@ -28,6 +28,7 @@
         .navbar {
             margin-bottom: 0;
             border-radius: 0;
+            height: 12%;
         }
         /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
 
@@ -40,6 +41,20 @@
             padding-top: 20px;
             background-color: #f1f1f1;
             height: 100%;
+        }
+
+        .well {
+            width: 120%;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            /* Set the hr color */
+            color: #333;
+            /* old IE */
+            background-color: #333;
+            /* Modern Browsers */
         }
         /* Set black background color, white text and some padding */
 
@@ -66,9 +81,17 @@
 
     <script>
         var map, marker, marker2, geo = navigator.geolocation;
-        var browserSupportFlag = false, centerOnLocation = true;
+        var browserSupportFlag = false,
+            centerOnLocation = true;
         var newyork, rounds, intervalID;;
-        var currentRound = 0;
+        var currentRound = 0,
+            score = 0,
+            tries = 0;
+
+        function writeContent(content) {
+            var elm = document.getElementsByClassName("col-sm-2 col-xs-2")[0];
+            elm.innerHTML = "<div class=\"well\">" + content + "</div><divclass=\"well\"><b>Score: </b>" + score + "</div>";
+        }
 
         function putMarker(location) {
             if (marker != undefined) marker.setMap(null);
@@ -84,7 +107,7 @@
         }
 
         function putMarker2(location) {
-            if(marker2 != undefined) marker2.setMap(null);
+            if (marker2 != undefined) marker2.setMap(null);
             marker2 = new google.maps.Marker({
                 position: location,
                 icon: "https://www.robotwoods.com/dev/misc/bluecircle.png",
@@ -108,46 +131,85 @@
         }
 
         function nextRound() {
-            if (++currentRound < rounds.length){
+            tries = 0;
+            if (++currentRound < rounds.length) {
                 putMarker(rounds[currentRound].loc);
                 writeQuestion();
-            }else {
+            } else {
                 clearInterval(intervalID);
                 marker.setMap(null);
                 writeContent("");
-                alert("You've finished!");
+                alert("You've finished with a score of " + score + " out of " + rounds.length * 4);
             }
         }
 
         function setCurrentLocation(location) {
-            if(centerOnLocation) map.setCenter(location);
+            if (centerOnLocation) map.setCenter(location);
             putMarker2(location);
         }
 
         function answerSubmission() {
             var form = document.getElementsByClassName("question")[0];
             var buttons = form["choice"];
-            for(var i = 0; i < buttons.length; i++) {
-                if(buttons[i].checked) {
-                    var val = buttons[i].value;
-                    if(val == rounds[currentRound].answer) {
-                        alert("Yay you're right!");
-                        nextRound();
-                        return;
-                    }
+            for (var i = 0; i < buttons.length; i++) {
+                if (buttons[i].checked && buttons[i].value == rounds[currentRound].answer) {
+                    score += 4 - tries;
+                    writeContent("");
+                    nextRound();
+                    return;
                 }
             }
-            alert("Lol, you're wrong");
+            if (++tries == 4) nextRound();
+        }
+
+        function photoSubmission() {
+            console.log("photo");
+            var form = document.getElementsByClassName("question")[0];
+            var url = form["url"].value;
+
+            var process = function(data) {
+                console.log("callback");
+                var json = JSON.parse(data);
+                var tags = json.results["0"].result.tag.classes;
+                console.log(tags);
+                var correct = true;
+                for(var i = 0; i < rounds[currentRound].tags.length; i++) {
+                    if(tags.indexOf(rounds[currentRound].tags[i]) >= 0) continue;
+                    else {
+                            correct = false;
+                            break;
+                    }
+                }
+                if(correct) {
+                    score += 4 - tries;
+                    nextRound();
+                    return;
+                } else alert("Nope!");
+                if (++tries == 4) nextRound();
+            }
+
+            var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function() {
+                    process(xmlHttp.responseText);
+                }
+                var params = "?url=" + url + "&client_id=_Lr5MvZLXLupHyJ5Xdc1Hguq7sC8TirbLcdNOnDk&client_secret=XUwersy52HwM9gjN8J7zmmPUwcS3ofoy9YrYRjMr&access_token=ByKqWXc1QehiE4qZ90TghXmb2UOswm";
+                xmlHttp.open("GET", "https://api.clarifai.com/v1/tag/" + params, true); // true for asynchronous
+                xmlHttp.send();
         }
 
         function writeQuestion() {
-            var answerStr = "<form class=\"question\" action=\"JavaScript:answerSubmission()\">";
-            var choices = rounds[currentRound].choices;
-            for(var i = 0; i < choices.length; i++) {
-                answerStr += "<input type=\"radio\" name=\"choice\" value=\"" + choices[i] + "\">" + choices[i] + "<br>";
+            if(rounds[currentRound].type == "question") {
+                var answerStr = "<form class=\"question\" action=\"JavaScript:answerSubmission()\">";
+                var choices = rounds[currentRound].choices;
+                for (var i = 0; i < choices.length; i++) {
+                    answerStr += "<input type=\"radio\" name=\"choice\" value=\"" + choices[i] + "\">" + choices[i] + "<br><br>";
+                }
+                answerStr += "<input type=\"submit\" value=\"Submit\"></form>";
+                writeContent("<p><b>Q" + (currentRound + 1) + ":</b> " + rounds[currentRound].question + "<hr></p>" + answerStr);
+            } else {
+                var answerStr = "<form class=\"question\" action=\"JavaScript:photoSubmission()\"><input type=\"text\" name=\"url\" value=\"\"><input type=\"submit\" value=\"Submit\">"
+                writeContent("<p><b>Q" + (currentRound + 1) + ":</b> " + rounds[currentRound].question + "<hr></p>" + answerStr);
             }
-            answerStr += "<input type=\"submit\" value=\"Submit\"></form>";
-            writeContent("<p>" + rounds[currentRound].question + "</p>" + answerStr);
         }
 
         function update() {
@@ -166,15 +228,25 @@
             newyork = new google.maps.LatLng(40.69847032728747, -73.9514422416687);
 
             rounds = [{
-                loc: new google.maps.LatLng(53.462052799999995, -2.2285842000000002),
-                question: "Who is the best person in the world?",
-                answer: "Tom Hanks",
-                choices: ["Queen Elizabeth (lol)", "Miley Cyrus", "Britney Spears", "Tom Hanks"]
+                loc: new google.maps.LatLng(53.480358, -2.246465),
+                question: "Enter a photo of the oldest catholic church in Manchester",
+                tags: ["church", "religion"]
             }, {
-                loc: newyork,
-                question: "akndlkawndlkawnd",
-                answer: "Britney Spears",
-                choices: ["Queen Elizabeth (lol)", "Miley Cyrus", "Britney Spears", "Tom Hanks"]
+                loc: new google.maps.LatLng(53.462052799999995, -2.2285842000000002),
+                type: "question",
+                question: "What is the name of the bell housed in the Manchester Town Hall clock tower?",
+                answer: "The Great Abel",
+                choices: ["Big Ben", "The Great Abel", "Joseph Chamberlain", "Saint Thomas"]
+            }, {
+                loc: new google.maps.LatLng(53.463238, -2.291362),
+                question: "What is the name of the stadium in which Manchester United Football Club are based?",
+                answer: "Old Trafford",
+                choices: ["The Etihad Stadium", "St. Andrew's", "Old Trafford", "The City of Manchester Stadium"]
+            }, {
+                loc: new google.maps.LatLng(53.480358, -2.246465),
+                question: "What is the oldest catholic church in Manchester?",
+                answer: "St. Mary's",
+                choices: ["St. Clement's", "St. Mary's", "St. Ambrose of Milan", "Holy Name of Jesus"]
             }];
 
             geo.getCurrentPosition(function(position) {
@@ -204,42 +276,29 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#"><img src="logo.png" height="150%" width="07%"/></a>
             </div>
             <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Projects</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#">
-                            <span class="glyphicon glyphicon-log-in"></span> Login</a>
-                    </li>
-                </ul>
+                <div class="col-sm-6 col-xs-6"> </div>
+                <a class="navbar-brand" href="#">
+                    <img src="logo.png" height="270%" width="15%" />
+                </a>
             </div>
         </div>
     </nav>
 
-      <div class="col-sm-12 col-xs-12"></br></br></div>
-      <div class="col-sm-1 col-xs-1"></div>
-      <div class="col-sm-9 col-xs-9"id="map"></div>
-      <div id="container1" class="container-fluid text-center">
-          <div id="container2" class="row content">
-              <div class="col-sm-2 col-xs-2">
-                  <div class="well">
-                      <script>
-                            function writeContent(content) {
-                                var elm = document.getElementsByClassName("well")[0];
-                                elm.innerHTML = content;
-                            }
-                        </script>
-                  </div>
-              </div>
-          </div>
-      </div>
+    <div class="col-sm-12 col-xs-12">
+        </br>
+        </br>
+    </div>
+    <div class="col-sm-1 col-xs-1"></div>
+    <div class="col-sm-9 col-xs-9" id="map"></div>
+    <div id="container1" class="container-fluid text-center">
+        <div id="container2" class="row content">
+            <div class="col-sm-2 col-xs-2">
+                <!-- written to by writeContent() -->
+            </div>
+        </div>
+    </div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCX3tSxI5b_gaP5CtQUCkOX0okr3Eh-iFk&callback=initMap" async defer></script>
 
 </body>
