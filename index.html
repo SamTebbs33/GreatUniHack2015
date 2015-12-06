@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>AWESOME MAP THING YAY, #MLG</title>
+    <title>TravelQuest</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -86,7 +86,8 @@
         var newyork, rounds, intervalID;;
         var currentRound = 0,
             score = 0,
-            tries = 0;
+            tries = 0,
+            numAnswersPerRound = 4;
 
         function writeContent(content) {
             var elm = document.getElementsByClassName("col-sm-2 col-xs-2")[0];
@@ -99,6 +100,7 @@
             marker = new google.maps.Marker({
                 position: location,
                 map: map,
+                animation: google.maps.Animation.DROP,
                 title: 'Place to go to'
             });
             google.maps.event.addListener(marker, 'click', function() {
@@ -107,13 +109,16 @@
         }
 
         function putMarker2(location) {
-            if (marker2 != undefined) marker2.setMap(null);
-            marker2 = new google.maps.Marker({
-                position: location,
-                icon: "https://www.robotwoods.com/dev/misc/bluecircle.png",
-                draggable: false,
-                map: map
-            });
+            if (marker2 != undefined){
+                 marker2.setPosition(location);
+            } else {
+                marker2 = new google.maps.Marker({
+                    position: location,
+                    icon: "https://www.robotwoods.com/dev/misc/bluecircle.png",
+                    draggable: false,
+                    map: map
+                });
+            }
         }
 
         function getDistance(pos1, pos2) {
@@ -139,7 +144,7 @@
                 clearInterval(intervalID);
                 marker.setMap(null);
                 writeContent("");
-                alert("You've finished with a score of " + score + " out of " + rounds.length * 4);
+                alert("You've finished with a score of " + score + " out of " + rounds.length * numAnswersPerRound);
             }
         }
 
@@ -153,13 +158,13 @@
             var buttons = form["choice"];
             for (var i = 0; i < buttons.length; i++) {
                 if (buttons[i].checked && buttons[i].value == rounds[currentRound].answer) {
-                    score += 4 - tries;
+                    score += numAnswersPerRound - tries;
                     writeContent("");
                     nextRound();
                     return;
                 }
             }
-            if (++tries == 4) nextRound();
+            if (++tries == numAnswersPerRound) nextRound();
         }
 
         function photoSubmission() {
@@ -181,11 +186,11 @@
                     }
                 }
                 if(correct) {
-                    score += 4 - tries;
+                    score += numAnswersPerRound - tries;
                     nextRound();
                     return;
                 } else alert("Nope!");
-                if (++tries == 4) nextRound();
+                if (++tries == numAnswersPerRound) nextRound();
             }
 
             var xmlHttp = new XMLHttpRequest();
@@ -230,7 +235,7 @@
             rounds = [{
                 loc: new google.maps.LatLng(53.480358, -2.246465),
                 question: "Enter a photo of the oldest catholic church in Manchester",
-                tags: ["church", "religion"]
+                tags: ["church"]
             }, {
                 loc: new google.maps.LatLng(53.462052799999995, -2.2285842000000002),
                 type: "question",
@@ -239,14 +244,10 @@
                 choices: ["Big Ben", "The Great Abel", "Joseph Chamberlain", "Saint Thomas"]
             }, {
                 loc: new google.maps.LatLng(53.463238, -2.291362),
+                type: "question",
                 question: "What is the name of the stadium in which Manchester United Football Club are based?",
                 answer: "Old Trafford",
                 choices: ["The Etihad Stadium", "St. Andrew's", "Old Trafford", "The City of Manchester Stadium"]
-            }, {
-                loc: new google.maps.LatLng(53.480358, -2.246465),
-                question: "What is the oldest catholic church in Manchester?",
-                answer: "St. Mary's",
-                choices: ["St. Clement's", "St. Mary's", "St. Ambrose of Milan", "Holy Name of Jesus"]
             }];
 
             geo.getCurrentPosition(function(position) {
@@ -255,7 +256,7 @@
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     },
-                    zoom: 8
+                    zoom: 13
                 });
                 var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 setCurrentLocation(location);
@@ -270,13 +271,13 @@
 
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
-            <div class="navbar-header">
+            <!-- <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-            </div>
+            </div> -->
             <div class="collapse navbar-collapse" id="myNavbar">
                 <div class="col-sm-6 col-xs-6"> </div>
                 <a class="navbar-brand" href="#">
