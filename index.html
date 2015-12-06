@@ -108,8 +108,10 @@
         }
 
         function nextRound() {
-            if (++currentRound < rounds.length) putMarker(rounds[currentRound].loc);
-            else {
+            if (++currentRound < rounds.length){
+                putMarker(rounds[currentRound].loc);
+                writeQuestion();
+            }else {
                 clearInterval(intervalID);
                 marker.setMap(null);
                 writeContent("");
@@ -122,13 +124,29 @@
             putMarker2(location);
         }
 
+        function answerSubmission() {
+            var form = document.getElementsByClassName("question")[0];
+            var buttons = form["choice"];
+            for(var i = 0; i < buttons.length; i++) {
+                if(buttons[i].checked) {
+                    var val = buttons[i].value;
+                    if(val == rounds[currentRound].answer) {
+                        alert("Yay you're right!");
+                        nextRound();
+                        return;
+                    }
+                }
+            }
+            alert("Lol, you're wrong");
+        }
+
         function writeQuestion() {
-            var answerStr = "<ol>";
+            var answerStr = "<form class=\"question\" action=\"JavaScript:answerSubmission()\">";
             var choices = rounds[currentRound].choices;
             for(var i = 0; i < choices.length; i++) {
-                answerStr += "<li>" + choices[i] + "</li>";
+                answerStr += "<input type=\"radio\" name=\"choice\" value=\"" + choices[i] + "\">" + choices[i] + "<br>";
             }
-            answerStr += "</ol>";
+            answerStr += "<input type=\"submit\" value=\"Submit\"></form>";
             writeContent("<p>" + rounds[currentRound].question + "</p>" + answerStr);
         }
 
@@ -139,7 +157,7 @@
                 setCurrentLocation(location);
                 if (d <= 0.001) {
                     console.log("you are close!");
-                    writeQuestion();
+                    //writeQuestion();
                 }
             });
         }
@@ -170,6 +188,7 @@
                 var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 setCurrentLocation(location);
                 putMarker(rounds[0].loc);
+                writeQuestion();
                 intervalID = setInterval(update, 2000);
             }, function() {
                 console.log("oh noes")
